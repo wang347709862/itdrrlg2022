@@ -9,6 +9,10 @@ public class Const {
     //session中当前用户的key
     public static String LOGIN_USER="login_user";
 
+    //查询时的字段
+    public static String USERNAME="username";
+    public static String EMAIL="email";
+
     //枚举管理状态码和状态信息
     public enum UsersEnmu{
 

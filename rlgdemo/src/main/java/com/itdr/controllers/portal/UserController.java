@@ -104,4 +104,33 @@ public class UserController {
             return sr;
         }
     }
+
+    //忘记密码，返回问题
+    @RequestMapping("forget_question.do")
+    public ServerResponse<Users> forgetQuestion(String username){
+            return userService.forgetQuestion(username);
+        }
+
+    //根据用户名查询找回问题和答案，验证是否匹配
+    @RequestMapping("forget_check_answer.do")
+    public ServerResponse<Users> forgetCheckAnswer(String username,String question,String answer){
+        return userService.forgetGetQuestion(username,question,answer);
+    }
+
+    //未登录状态，根据用户名修改密码，需要回答问题后的令牌
+    @RequestMapping("forget_reset_password.do")
+    public ServerResponse<Users> forgetResetPassword(String username,String passwordNew,String forgetToken){
+        return userService.forgetResetPassword(username,passwordNew,forgetToken);
+    }
+
+    //登录状态，根据用户修改密码，需要验证旧密码
+    @RequestMapping("reset_password.do")
+    public ServerResponse<Users> resetPassword(String passwordOld,String passwordNew,HttpSession session){
+        Users user = (Users) session.getAttribute(Const.LOGIN_USER);
+        if (user == null) {
+           return ServerResponse.defeatedRS(Const.UsersEnmu.NO_LOGIN.getCode(),Const.UsersEnmu.NO_LOGIN.getDesc());
+        }else{
+           return userService.resetPassword(user,passwordOld,passwordNew);
+        }
+    }
 }

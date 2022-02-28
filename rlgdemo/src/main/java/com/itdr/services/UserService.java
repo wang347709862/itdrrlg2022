@@ -13,4 +13,12 @@ public interface UserService {
     ServerResponse getInformation(Users user);
 
     ServerResponse updateInformation(Users u);
+
+    ServerResponse forgetQuestion(String username);
+
+    ServerResponse<Users> forgetGetQuestion(String username, String question, String answer);
+
+    ServerResponse<Users> forgetResetPassword(String username, String passwordNew,String forgetToken);
+
+    ServerResponse<Users> resetPassword(Users user, String passwordOld, String passwordNew);
 }

@@ -6,9 +6,12 @@ import com.itdr.mappers.UsersMapper;
 import com.itdr.pojo.Users;
 import com.itdr.services.UserService;
 import com.itdr.utils.MD5Utils;
+import com.itdr.utils.TokenCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -128,5 +131,115 @@ public class UserServiceImpl implements UserService {
         Users users = usersMapper.selectByPrimaryKey(u.getId());
         return ServerResponse.successRS(Const.SUCCESS,users,"更新个人信息成功");
 
+    }
+
+    //忘记密码，返回问题
+    @Override
+    public ServerResponse forgetQuestion(String username) {
+        if(username==null || username.equals("")){
+            return ServerResponse.defeatedRS("账户名不能为空");
+        }
+
+        //查询用户名是否存在
+        int i = usersMapper.selectByUsernameOrEmail(username, Const.USERNAME);
+        if(i<=0){
+            return ServerResponse.defeatedRS("账户名不存在");
+        }
+
+        //根据用户名查问题
+        String question=usersMapper.selecQusetionByUsername(username);
+        if(question==null || question.equals("")){
+            return ServerResponse.defeatedRS("未设置问题");
+        }
+        return ServerResponse.successRS(question);
+    }
+
+    //根据用户名查询找回问题和答案，验证是否匹配
+    @Override
+    public ServerResponse<Users> forgetGetQuestion(String username, String question, String answer) {
+
+        if(username==null || username.equals("")){
+            return ServerResponse.defeatedRS("未设置账户名");
+        }
+        if(question==null || question.equals("")){
+            return ServerResponse.defeatedRS("未设置问题");
+        }
+        if(answer==null || answer.equals("")){
+            return ServerResponse.defeatedRS("未设置答案");
+        }
+
+        //查询用户名是否存在
+
+
+        //查询用户名和答案问题是否匹配
+        int i=usersMapper.selectByUsernameAndQuestionAndAnswer(username,question,answer);
+        if(i<=0){
+            return ServerResponse.defeatedRS("问题和答案不匹配");
+        }
+
+        //全部匹配
+        // 产生随机字符令牌
+        String token = UUID.randomUUID().toString();
+        //把令牌放入缓存中，后期用redis替代
+        TokenCache.set("token_"+username,token);
+        return  ServerResponse.successRS(token);
+    }
+
+    //未登录状态，根据用户名修改密码，需要回答问题后的令牌
+    @Override
+    public ServerResponse<Users> forgetResetPassword(String username, String passwordNew,String forgetToken) {
+        if(username==null || username.equals("")){
+            return ServerResponse.defeatedRS("账户名不能为空");
+        }
+        if(passwordNew==null || passwordNew.equals("")){
+            return ServerResponse.defeatedRS("新密码不能为空");
+        }
+        if(forgetToken==null || forgetToken.equals("")){
+            return ServerResponse.defeatedRS("非法的令牌");
+        }
+
+        //比较拿的令牌和缓存中的令牌
+        String token=TokenCache.get("token_"+username);
+        if(token==null || token.equals("")){
+            return ServerResponse.defeatedRS("令牌过期了");
+        }
+        if(!token.equals(forgetToken)){
+            return ServerResponse.defeatedRS("非法的令牌");
+        }
+
+        //根据用户名修改密码
+        String passwordNewMD5=MD5Utils.getMD5Code(passwordNew);
+        int i=usersMapper.updateByUsernameAndPasswordnew(username,passwordNewMD5);
+        if(i<=0){
+            return ServerResponse.defeatedRS("修改密码失败");
+        }
+        return ServerResponse.successRS("修改密码成功");
+    }
+
+    //登录状态，根据用户修改密码，需要验证旧密码
+    @Override
+    public ServerResponse<Users> resetPassword(Users user,String passwordOld, String passwordNew) {
+
+        if(passwordOld==null || passwordOld.equals("")){
+            return ServerResponse.defeatedRS("旧密码不能为空");
+        }
+        if(passwordNew==null || passwordNew.equals("")){
+            return ServerResponse.defeatedRS("新密码不能为空");
+        }
+
+        //根据id和旧密码查询是否存在
+        String passwordOldMD5=MD5Utils.getMD5Code(passwordOld);
+        int i=usersMapper.selectByIdAndPasswordold(user.getId(),passwordOldMD5);
+        if (i<=0) {
+            return ServerResponse.defeatedRS("旧密码错误");
+        }
+
+        //修改密码
+        String passwordNewMD5=MD5Utils.getMD5Code(passwordNew);
+        int i2=usersMapper.updateByUsernameAndPasswordnew(user.getUsername(),passwordNewMD5);
+        if (i2 <= 0) {
+            return ServerResponse.defeatedRS("修改密码失败");
+        }
+        return ServerResponse.successRS("修改密码成功");
     }
 }

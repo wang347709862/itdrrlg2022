@@ -163,4 +163,33 @@
      </if>
    </where>
   </select>
+
+  <select id="selecQusetionByUsername" parameterType="java.lang.String" resultType="java.lang.String">
+    select
+    question
+    from neuedu_user
+   where username=#{username}
+  </select>
+
+  <select id="selectByUsernameAndQuestionAndAnswer" parameterType="map" resultType="java.lang.Integer">
+    select
+    count(id)
+    from neuedu_user
+   where username=#{username} and question=#{question} and answer=#{answer}
+  </select>
+
+  <update id="updateByUsernameAndPasswordnew" parameterType="map" >
+    update neuedu_user
+    set
+      password = #{passwordNew},
+      update_time = now()
+    where username = #{username}
+  </update>
+
+  <select id="selectByIdAndPasswordold" parameterType="map" resultType="java.lang.Integer">
+    select
+    count(id)
+    from neuedu_user
+   where id=#{id} and password=#{passwordOld}
+  </select>
 </mapper>

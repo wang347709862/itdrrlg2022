@@ -21,4 +21,14 @@ public interface UsersMapper {
 
     //用户名或邮箱是否存在
     int selectByUsernameOrEmail(@Param("str")String str, @Param("type")String type);
+
+    //根据用户名查问题
+    String selecQusetionByUsername(@Param("username")String username);
+
+    //根据用户名查询找回问题和答案
+    int selectByUsernameAndQuestionAndAnswer(@Param("username")String username, @Param("question")String question, @Param("answer")String answer);
+
+    int updateByUsernameAndPasswordnew(@Param("username")String username,@Param("passwordNew") String passwordNew);
+
+    int selectByIdAndPasswordold(@Param("id") Integer id, @Param("passwordOld") String passwordOld);
 }
