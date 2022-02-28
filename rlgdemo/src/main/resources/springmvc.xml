@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation=
+			   "http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/aop/spring-tx.xsd
+
+">
+
+
+
+	<!--开启注解扫描-->
+		<context:component-scan base-package="com.itdr.controllers">
+			<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		</context:component-scan>
+
+	<!--//注解驱动（映射器和适配器）这里加了日期参数绑定的转换器-->
+	<mvc:annotation-driven >
+	<!--<mvc:annotation-driven conversion-service="conversionService" >-->
+		<mvc:message-converters>
+			<!--适配器可以单独配置，也可以放在注解驱动中-->
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<!--已有类的参数绑定，和日期的区别是日期是自定义-->
+				<property name="supportedMediaTypes">
+					<list>
+						<value>application/json;charset=UTF-8</value>
+					</list> </property> </bean>
+		</mvc:message-converters>
+
+
+	</mvc:annotation-driven>
+
+	<!--视图解析器-->
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<property name="prefix" value="/WEB-INF/"/>
+	<property name="suffix" value=".jsp"/>
+</bean>
+
+	<!-- 文件上传视图解析器 -->
+	<bean id="multipartResolver"
+		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置上传文件的最大尺寸为5MB -->
+		<property name="maxUploadSize" value="5242880"/>
+		<!--默认编码集-->
+		<property name="defaultEncoding" value="UTF-8"/>
+		<!--开启延时加载，提高性能-->
+		<property name="resolveLazily" value="true"/></bean>
+
+
+	<!--自定义参数绑定-->
+	<!--<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">-->
+		<!--<property name="converters">-->
+			<!--<set>-->
+				<!--<bean class="cn.itcast.springmvc.converter.DateConverter" />-->
+			<!--</set>-->
+		<!--</property>-->
+	<!--</bean>-->
+
+	<!-- 配置全局异常处理器 -->
+	<!--<bean-->
+			<!--id="customHandleException" 	class="com.itdr.spring2.exception.CustomHandleException"/>-->
+
+	<!--原始dao开发时spring整合mybatis，实现类需要被容器管理，并需要注入sqlSessionFactory-->
+<!--<bean id="accountsDao" class="com.itdr.spring2.dao.AccountsDaoImpl">-->
+	<!--<property name="sqlSessionFactory" ref="sqlSessionFactory"/>-->
+<!--</bean>-->
+
+	<!--org.mybatis.spring.mapper.MapperFactoryBean单个接口的mapper代理对象-->
+	<!--扫描包配置多个接口的mapper代理对象,此时没有id，对应的接口首字母小写-->
+
+	<!--&lt;!&ndash;jdbc操作数据库模板&ndash;&gt;-->
+
+
+	<!--事务管理器-->
+
+
+	<!--事务管理模板-->
+
+</beans>

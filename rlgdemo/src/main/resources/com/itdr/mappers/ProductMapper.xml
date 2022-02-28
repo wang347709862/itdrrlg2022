@@ -113,9 +113,16 @@
       <if test="subtitle != null" >
         #{subtitle,jdbcType=VARCHAR},
       </if>
+      <!--<if test="mainImage != null" >-->
+        <!--#{mainImage,jdbcType=VARCHAR},-->
+      <!--</if>-->
+      <!--<if test="mainImage != null" >-->
+        <!--#{mainImage,jdbcType=VARCHAR},-->
+      <!--</if>-->
       <if test="mainImage != null" >
         #{mainImage,jdbcType=VARCHAR},
       </if>
+
       <if test="price != null" >
         #{price,jdbcType=DECIMAL},
       </if>
